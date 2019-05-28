@@ -8,24 +8,27 @@ class Bullet {
 
     shoot(){
         this.radius = 3;
-        let initDir = this.dir.copy().mult(this.shooter.radius / this.shooter.speed);
-        this.x = this.shooter.x + initDir.x;
-        this.y = this.shooter.y + initDir.y;
+      //  let initDir = this.dir.copy().mult(this.shooter.radius / this.shooter.speed);
+        let initDir = createVector(0, 0);
+        this.x = player[this.shooter].x + initDir.x;
+        this.y = player[this.shooter].y + initDir.y;
         this.exist = 1;
     }
 
     fly(){
-        this.x += this.dir.x;
-        this.y += this.y;
+        this.x += this.dir.x * this.speed;
+        this.y += this.dir.y * this.speed;
         for(let i = 1; i <= 2; i ++){
             if(i == this.shooter) continue;
-            if(collide(this, Player[i])) {
-                Player[i].hp -= this.dmg;
+            if(collide(this, player[i])) {
+                player[i].hp -= this.dmg;
                 this.exist = 0;
             }
         }
         if(hitBorder(this)) this.exist = 0;
     }
 
-    
+    display(){
+        ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+    }
 }

@@ -74,7 +74,6 @@ class Shooter {
   }
 
   display() {
-    if(this.hp <= 0) return ;
     push();
     fill(255);
     ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
@@ -82,6 +81,15 @@ class Shooter {
     ellipse(this.x, this.y, this.radius * 0.7, this.radius * 0.7);
     strokeWeight(2);
     line(this.x, this.y, this.x + this.gunDir.x * this.radius * 0.75, this.y + this.gunDir.y * this.radius * 0.75);
+    stroke(255, sqrt(this.hp / 100) * 255, sq(this.hp / 100) * 255);
+    translate(-20, -25);
+    fill(255);
+    rect(this.x, this.y, 40, 5);
+    noStroke();
+    fill('blue');
+    rect(this.x, this.y, this.hp * 0.4, 5);
+    fill(0);
+    rect(this.x + this.hp * 0.4, this.y, 40 - this.hp * 0.4, 5);
     pop();
   }
 }

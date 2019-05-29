@@ -8,8 +8,7 @@ class Bullet {
 
     shoot(){
         this.radius = 3;
-      //  let initDir = this.dir.copy().mult(this.shooter.radius / this.shooter.speed);
-        let initDir = createVector(0, 0);
+        let initDir = this.dir.copy().mult(this.shooter.radius / this.shooter.speed);
         this.x = player[this.shooter].x + initDir.x;
         this.y = player[this.shooter].y + initDir.y;
         this.exist = 1;

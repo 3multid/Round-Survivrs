@@ -12,13 +12,17 @@ function setup() {
 
 function draw() {
   background(220);
-  if(player[1].hp <= 0){
-    text("Player 2 wins", 190, 190);
-    return;
-  }
-  else if(player[2].hp <= 0){
-    text("Player 1 wins", 190, 190);
-    return;
+  for(let i = 1; i <= 2; i++){
+    if(player[i].hp <= 0){
+      push();
+      fill(random(255), random(255), random(255));
+      if(player[2].hp <= 0) text("Player 1 wins!", 170, 190);
+      else text("Player 2 wins!", 170, 190);
+      pop();
+      text("Press Enter to play again.", 150, 210)
+      GameStatus = "ended";
+      return;
+    }
   }
   for (let i = 1; i <= 2; i++){
     player[i].move();
@@ -27,6 +31,18 @@ function draw() {
   ellipse(centerX, centerY, Radius * 2, Radius * 2);
   for (let i = 1; i <= 2; i++) {
     player[i].display();
+  }
+  if(GameStatus == "ready"){
+    let t = millis() - timeStart;
+    push();
+    textSize(30);
+    if(t < 3000){
+      let tx = 4 + floor(-t / 1000);
+      text(tx.toString(), 190, 200);
+    } 
+    else if(t < 4000) text("Shoot!", 160, 200);
+    else GameStatus = "playing";
+    pop();
   }
   for(let i = 0; i < bullet.length; i++){
     bullet[i].fly();
@@ -39,12 +55,16 @@ function draw() {
 }
 
 function keyPressed(){
-  if(key == 13) newGame;
+  if(keyCode == 13 && GameStatus == "ended") newGame();
 }
+
 function newGame(){
   player[1].spawn(100, 100);
   player[2].spawn(300, 300);
   bullet = [];
+  GameStatus = "ready";
+  timeStart = millis();
+  
 }
 
 function hitBorder(s) {

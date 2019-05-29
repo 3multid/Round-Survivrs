@@ -17,6 +17,7 @@ class Shooter {
   }
 
   move() {
+    if(GameStatus == "ended") return ;
     this.dir.x = 0;
     this.dir.y = 0;
     if (this.num == 2) {
@@ -40,6 +41,7 @@ class Shooter {
       }
     }
     this.gunDir.normalize();
+    if(GameStatus == "ready") return ;
     this.dir.normalize();
     this.dir.mult(this.speed);
     this.x += this.dir.x;
@@ -62,7 +64,7 @@ class Shooter {
   }
 
   shoot(){
-    if(millis() - this.lastShot < reload) return ;
+    if(millis() - this.lastShot < reload || GameStatus != "playing") return ;
     if(this.num == 1 || this.num == 2 && mouseIsPressed){
       let bl = new Bullet(this.num, this.gunDir, 5, 10);
       bl.shoot();

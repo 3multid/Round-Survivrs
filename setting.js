@@ -9,3 +9,5 @@ let Radius = 200;
 let player = [0];
 let bullet = [];
 let reload = 500;
+let GameStatus = "ready"; // ready ended playing
+let timeStart = 0;

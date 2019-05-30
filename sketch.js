@@ -26,6 +26,7 @@ function draw() {
   }
   for (let i = 1; i <= 2; i++){
     player[i].move();
+    player[i].directGun();
     player[i].shoot();
   } 
   ellipse(centerX, centerY, Radius * 2, Radius * 2);
@@ -56,6 +57,12 @@ function draw() {
 
 function keyPressed(){
   if(keyCode == 13 && GameStatus == "ended") newGame();
+}
+
+function keyReleased(){
+  if(keyCode == 81) player[1].auto = !player[1].auto;
+  else if(keyCode == 8) player[2].auto = !player[2].auto;
+  return false;
 }
 
 function newGame(){

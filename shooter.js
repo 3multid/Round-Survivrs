@@ -14,10 +14,12 @@ class Shooter {
     this.gunDir = createVector(centerX - this.x, centerY - this.y);
     this.hp = 100;
     this.lastShot = -reload;
+    this.auto = 0;
+    this.hidden = 0;
   }
 
   move() {
-    if(GameStatus == "ended") return ;
+    if(GameStatus != "playing") return ;
     this.dir.x = 0;
     this.dir.y = 0;
     if (this.num == 2) {
@@ -27,21 +29,14 @@ class Shooter {
           this.dir.y += dy[i - 37];
         }
       }
-      this.gunDir.set(mouseX - this.x, mouseY - this.y);
     } else {
-      this.gunDir.mult(10);
       for (let i = 0; i < 4; i++) {
         if (keyIsDown(p1move[i])) {
           this.dir.x += dx[i];
           this.dir.y += dy[i];
         }
-        if (keyIsDown(p1gun[i])) {
-          this.gunDir.add(vectorDir[i]);
-        }
       }
     }
-    this.gunDir.normalize();
-    if(GameStatus == "ready") return ;
     this.dir.normalize();
     this.dir.mult(this.speed);
     this.x += this.dir.x;
@@ -63,10 +58,37 @@ class Shooter {
     }
   }
 
+  directGun(){
+    if(GameStatus == "ended") return;
+    if(this.auto){
+      this.gunDir.set(player[3 - this.num].x - this.x, player[3 - this.num].y - this.y);
+      this.gunDir.normalize();
+      return;
+    } 
+    if(this.num == 1){
+      this.gunDir.mult(10);
+      for(let i = 0; i < 4; i++){
+        if(keyIsDown(p1gun[i])){
+          this.gunDir.add(vectorDir[i]);
+        }
+      }
+    }
+    else {
+      this.gunDir.set(mouseX - this.x, mouseY - this.y);
+    }
+    this.gunDir.normalize();
+  }
+
   shoot(){
     if(millis() - this.lastShot < reload || GameStatus != "playing") return ;
-    if(this.num == 1 || this.num == 2 && mouseIsPressed){
-      let bl = new Bullet(this.num, this.gunDir, 5, 10);
+    if(this.auto || this.num == 1 && keyIsDown(32) || this.num == 2 && mouseIsPressed){
+      let bl;
+      if(this.auto){
+        let enemyDir = createVector(player[3 - this.num].x - this.x, player[3 - this.num].y - this.y);
+        enemyDir.normalize();
+        bl = new Bullet(this.num, enemyDir, 5, 10);
+      }
+      else bl = new Bullet(this.num, this.gunDir, 5, 10);
       bl.shoot();
       bullet.push(bl);
       this.lastShot = millis();

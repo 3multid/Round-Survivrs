@@ -1,5 +1,5 @@
 function setup() {
-  createCanvas(401, 401);
+  createCanvas(601, 601);
   frameRate(60);
   for (let i = 0; i < 4; i++) {
     vectorDir.push(createVector(dx[i], dy[i]));
@@ -16,10 +16,10 @@ function draw() {
     if(player[i].hp <= 0){
       push();
       fill(random(255), random(255), random(255));
-      if(player[2].hp <= 0) text("Player 1 wins!", 170, 190);
-      else text("Player 2 wins!", 170, 190);
+      if(player[2].hp <= 0) text("Player 1 wins!", centerX - 40, centerY - 10);
+      else text("Player 2 wins!", centerX - 40, centerY - 10);
       pop();
-      text("Press Enter to play again.", 150, 210)
+      text("Press Enter to play again.", centerX - 70, centerY + 10)
       GameStatus = "ended";
       return;
     }
@@ -31,6 +31,7 @@ function draw() {
   } 
   ellipse(centerX, centerY, Radius * 2, Radius * 2);
   for (let i = 1; i <= 2; i++) {
+    player[i].outerDisplay();
     player[i].display();
   }
   if(GameStatus == "ready"){
@@ -38,10 +39,10 @@ function draw() {
     push();
     textSize(30);
     if(t < 3000){
-      let tx = 4 + floor(-t / 1000);
-      text(tx.toString(), 190, 200);
+      let tx = 4 + floor(-t / 1000);  
+      text(tx.toString(), centerX - 10, centerY + 10);
     } 
-    else if(t < 4000) text("Shoot!", 160, 200);
+    else if(t < 4000) text("Shoot!", centerX - 45, centerY + 10);
     else GameStatus = "playing";
     pop();
   }
@@ -66,8 +67,8 @@ function keyReleased(){
 }
 
 function newGame(){
-  player[1].spawn(100, 100);
-  player[2].spawn(300, 300);
+  player[1].spawn(150, 150);
+  player[2].spawn(450, 450);
   bullet = [];
   GameStatus = "ready";
   timeStart = millis();
@@ -78,6 +79,16 @@ function hitBorder(s) {
   return dist(centerX, centerY, s.x, s.y) + s.radius >= Radius;
 }
 
-function collide(c1, c2) {
+function hit(c1, c2) {
   return dist(c1.x, c1.y, c2.x, c2.y) <= c1.radius + c2.radius;
+}
+
+function fixBorder(s){
+  let out = createVector(s.x - centerX, s.y - centerY);
+  let fixed = createVector(s.x - centerX, s.y - centerY);
+  fixed.normalize();
+  fixed.mult(Radius - s.radius);
+  out.sub(fixed);
+  s.x -= out.x;
+  s.y -= out.y;
 }

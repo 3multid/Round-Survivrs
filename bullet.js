@@ -8,7 +8,7 @@ class Bullet {
 
     shoot(){
         this.radius = 3;
-        let initDir = this.dir.copy().mult(this.shooter.radius / this.shooter.speed);
+        let initDir = this.dir.copy().mult(10);
         this.x = player[this.shooter].x + initDir.x;
         this.y = player[this.shooter].y + initDir.y;
         this.exist = 1;
@@ -19,7 +19,7 @@ class Bullet {
         this.y += this.dir.y * this.speed;
         for(let i = 1; i <= 2; i ++){
             if(i == this.shooter) continue;
-            if(collide(this, player[i])) {
+            if(hit(this, player[i])) {
                 player[i].hp -= this.dmg;
                 this.exist = 0;
             }

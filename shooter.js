@@ -6,8 +6,8 @@ class Shooter {
   spawn(x, y) {
     this.x = x;
     this.y = y;
-    this.smoke = 10;
-    this.frag = 10;
+    this.smoke = smokeCD;
+    this.frag = fragCD;
     this.dir = createVector(0, 0);
     this.speed = 3;
     this.radius = 15;
@@ -48,13 +48,7 @@ class Shooter {
       this.dir.sub(hold);
       this.x += this.dir.x;
       this.y += this.dir.y;
-      let out = createVector(this.x - centerX, this.y - centerY);
-      let fixed = createVector(this.x - centerX, this.y - centerY);
-      fixed.normalize();
-      fixed.mult(Radius - this.radius);
-      out.sub(fixed);
-      this.x -= out.x;
-      this.y -= out.y;
+      fixBorder(this);
     }
   }
 
@@ -93,6 +87,39 @@ class Shooter {
       bullet.push(bl);
       this.lastShot = millis();
     }
+  }
+   
+  outerDisplay(){
+    let autoX = 31, autoY = 31;
+    let smokeX = autoX + 50, smokeY = autoY;
+    let fragX = autoX, fragY = autoY + 50;
+    if(this.num == 2){
+      autoX = 600 - autoX;
+      autoY = 600 - autoY;
+      smokeX = 600 - smokeX;
+      smokeY = 600 - smokeY;
+      fragX = 600 - fragX;
+      fragY = 600 - fragY;
+    }
+    push();
+    stroke(0);
+    strokeWeight(1);
+    if(!this.auto) fill(230);
+    else fill("rgb(200, 200, 55)");
+    ellipse(autoX, autoY, 50, 50);
+    fill(255);
+    ellipse(smokeX, smokeY, 40, 40);
+    ellipse(fragX, fragY, 40, 40);
+    fill(200);
+    arc(smokeX, smokeY, 20, 20, -PI / 2 + this.smoke / smokeCD * PI * 2, -PI / 2);
+    arc(fragX, fragY, 20, 20, -PI / 2 + this.frag / fragCD * PI * 2, -PI / 2);
+    fill(0);
+    noStroke();
+    textSize(10);
+    text("Auto", autoX - 10, autoY + 3);
+    text("Frag", fragX - 10, fragY + 3);
+    text("Smoke", smokeX - 15, smokeY + 3);
+    pop();
   }
 
   display() {

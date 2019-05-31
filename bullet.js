@@ -1,16 +1,22 @@
 class Bullet {
-    constructor(shooter, dir, speed, dmg){
+    constructor(shooter, dir, x, y){
         this.shooter = shooter;
         this.dir = dir.copy();
-        this.speed = speed; // make bullet type to reduce complexity
-        this.dmg = dmg; //
+        this.x = x; // make bullet type to reduce complexity
+        this.y = y; //
     }
 
     shoot(){
-        this.radius = 3;
-        let initDir = this.dir.copy().mult(10);
-        this.x = player[this.shooter].x + initDir.x;
-        this.y = player[this.shooter].y + initDir.y;
+        if(this.shooter){
+            this.radius = 3;
+            this.speed = 5;
+            this.dmg = 10;
+        }
+        else{
+            this.radius = 2;
+            this.speed = 7;
+            this.dmg = 5;
+        }
         this.exist = 1;
     }
 
@@ -28,6 +34,12 @@ class Bullet {
     }
 
     display(){
-        ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+        if(this.exist){
+            push();
+            if(this.shooter == 1 || this.shooter == 2)  fill(200, 55, 0);
+            else fill(55);
+            ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+            pop();
+        } 
     }
 }

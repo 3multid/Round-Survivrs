@@ -6,8 +6,8 @@ class Shooter {
   spawn(x, y) {
     this.x = x;
     this.y = y;
-    this.smoke = smokeCD;
-    this.frag = fragCD;
+    this.smoke = 0;
+    this.frag = 0;
     this.dir = createVector(0, 0);
     this.speed = 3;
     this.radius = 15;
@@ -15,7 +15,12 @@ class Shooter {
     this.hp = 100;
     this.lastShot = -reload;
     this.auto = 0;
+    this.canShoot = 1;
     this.hidden = 0;
+    this.timeHold = 0;
+    this.holding = 0;
+    this.targetX = this.x;
+    this.targetY = this.y;
   }
 
   move() {
@@ -48,7 +53,7 @@ class Shooter {
       this.dir.sub(hold);
       this.x += this.dir.x;
       this.y += this.dir.y;
-      fixBorder(this);
+      fixToBorder(this);
     }
   }
 
@@ -74,21 +79,36 @@ class Shooter {
   }
 
   shoot(){
-    if(millis() - this.lastShot < reload || GameStatus != "playing") return ;
+    if(millis() - this.lastShot < reload || GameStatus != "playing" || !this.canShoot) return ;
     if(this.auto || this.num == 1 && keyIsDown(32) || this.num == 2 && mouseIsPressed){
       let bl;
       if(this.auto){
         let enemyDir = createVector(player[3 - this.num].x - this.x, player[3 - this.num].y - this.y);
         enemyDir.normalize();
-        bl = new Bullet(this.num, enemyDir, 5, 10);
+        bl = new Bullet(this.num, enemyDir, this.x + enemyDir.x * 10, this.y + enemyDir.y * 10);
       }
-      else bl = new Bullet(this.num, this.gunDir, 5, 10);
+      else bl = new Bullet(this.num, this.gunDir, this.x + this.gunDir.x * 10, this.y + this.gunDir.y * 10);
       bl.shoot();
       bullet.push(bl);
       this.lastShot = millis();
     }
   }
-   
+  
+  holdGrenade(){
+    this.speed = 1.5;
+    this.targetX = this.x + (millis() - this.timeHold) * this.gunDir.x / FPS * 25;
+    this.targetY = this.y + (millis() - this.timeHold) * this.gunDir.y / FPS * 25;
+  }
+
+  throwGrenade(){
+    let gr = new Grenade(this.holding, this.x, this.y, this.targetX, this.targetY);
+    gr.throw();
+    grenade.push(gr);
+    this.holding = 0;
+    this.speed = 3;
+    this.canShoot = 1;
+  }
+
   outerDisplay(){
     let autoX = 31, autoY = 31;
     let smokeX = autoX + 50, smokeY = autoY;
@@ -105,14 +125,14 @@ class Shooter {
     stroke(0);
     strokeWeight(1);
     if(!this.auto) fill(230);
-    else fill("rgb(200, 200, 55)");
+    else fill(200, 200, 55);
     ellipse(autoX, autoY, 50, 50);
     fill(255);
     ellipse(smokeX, smokeY, 40, 40);
     ellipse(fragX, fragY, 40, 40);
     fill(200);
-    arc(smokeX, smokeY, 20, 20, -PI / 2 + this.smoke / smokeCD * PI * 2, -PI / 2);
-    arc(fragX, fragY, 20, 20, -PI / 2 + this.frag / fragCD * PI * 2, -PI / 2);
+    arc(smokeX, smokeY, 40, 40, -PI / 2 + (1 - this.smoke / smokeCD) * PI * 2, -PI / 2);
+    arc(fragX, fragY, 40, 40, -PI / 2 + (1 - this.frag / fragCD) * PI * 2, -PI / 2);
     fill(0);
     noStroke();
     textSize(10);
@@ -126,7 +146,9 @@ class Shooter {
     push();
     fill(255);
     ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
-    fill(0);
+    if(this.holding == 0) fill(0);
+    else if(this.holding == 1) fill(230);
+    else fill(200, 200, 0);
     ellipse(this.x, this.y, this.radius * 0.7, this.radius * 0.7);
     strokeWeight(2);
     line(this.x, this.y, this.x + this.gunDir.x * this.radius * 0.75, this.y + this.gunDir.y * this.radius * 0.75);
@@ -139,6 +161,14 @@ class Shooter {
     rect(this.x, this.y, this.hp * 0.4, 5);
     fill(0);
     rect(this.x + this.hp * 0.4, this.y, 40 - this.hp * 0.4, 5);
+    translate(20, 25);
+    if(this.holding){
+      stroke(0);
+      line(this.targetX - 5, this.targetY, this.targetX + 5, this.targetY);
+      line(this.targetX, this.targetY - 5, this.targetX, this.targetY + 5);
+      fill(255);
+      ellipse(this.targetX, this.targetY, 4, 4);
+    }
     pop();
   }
 }

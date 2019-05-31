@@ -1,3 +1,4 @@
+let FPS = 60;
 let dx = [-1, 0, 1, 0];
 let dy = [0, -1, 0, 1];
 let vectorDir = [];
@@ -14,3 +15,18 @@ let GameStatus = "ready"; // ready ended playing
 let timeStart = 0;
 let fragCD = 12;
 let smokeCD = 10;
+
+/*
+a w d s : p1 move
+g y j h : p1 aim
+space: p1 shoot
+arrows : p2 move
+mouse : p2 aim
+left mouse : p2 shoot
+q : p1 auto shoot
+backspace: p2 auto shoot
+e : p1 hold smoke, release to throw
+r : p1 throw frag, ___
+0 : p2 throw smoke, ___
+. : p2 throw frag, ___
+*/

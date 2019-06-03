@@ -10,12 +10,14 @@ class Bullet {
     // bullet or frag
     if (this.shooter) {
       this.radius = 3;
-      this.speed = 7;
+      this.speed = 10;
       this.dmg = 10;
+      this.lifespan = inf;
     } else {
       this.radius = 2;
-      this.speed = 10;
+      this.speed = 15;
       this.dmg = 5;
+      this.lifeTime = 0.25;
     }
     this.exist = 1;
   }
@@ -30,7 +32,7 @@ class Bullet {
         this.exist = 0;
       }
     }
-    if (hitBorder(this)) this.exist = 0;
+    if (hitBorder(this) || this.lifeTime <= 0) this.exist = 0;
   }
 
   display() {

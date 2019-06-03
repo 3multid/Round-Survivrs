@@ -1,9 +1,6 @@
 function setup() {
   createCanvas(601, 601);
   frameRate(FPS);
-  for (let i = 0; i < 4; i++) {
-    vectorDir.push(createVector(dx[i], dy[i]));
-  }
   for (let i = 1; i <= 2; i++) {
     player.push(new Shooter(i));
   }
@@ -70,12 +67,14 @@ function draw() {
   // handle bullets
   for (let i = 0; i < bullet.length; i++) {
     bullet[i].fly();
+    bullet[i].lifeTime -= 1 / FPS;
     bullet[i].display();
   }
   bullet = bullet.filter(x => x.exist);
   // handle grenades
   for (let i = 0; i < grenade.length; i++) {
     grenade[i].fly();
+    grenade[i].lifeTime -= 1 / FPS;
     if (grenade[i].type == 1) grenade[i].displaySmoke();
     else grenade[i].displayFrag();
   }
@@ -153,3 +152,4 @@ function fixToBorder(s) {
   s.x -= out.x;
   s.y -= out.y;
 }
+

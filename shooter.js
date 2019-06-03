@@ -1,27 +1,27 @@
 class Shooter {
   constructor(num) {
-    this.num = num;                                                   // index of the shooter
+    this.num = num; // index of the shooter
   }
 
   // spawn the shooter and reset some attributes
   spawn(x, y) {
-    this.x = x;                                                       // initial coordinate
-    this.y = y;                                                       // ---
-    this.smoke = 0;                                                   // smoke grenade cooldown
-    this.frag = 0;                                                    // frag grenade cooldown
-    this.dir = createVector(0, 0);                                    // direction of moving
+    this.x = x;
+    this.y = y; 
+    this.smoke = 0; // smoke grenade cooldown
+    this.frag = 0; // frag grenade cooldown
+    this.dir = createVector(0, 0); // direction of moving by vector
     this.speed = 3;
-    this.radius = 15;                                                 // radius of the body
-    this.gunDir = createVector(centerX - this.x, centerY - this.y);   // direction of shooting or throwing
+    this.radius = 15; // radius of the body
+    this.gunDir = PI / 4; // direction of shooting or throwing by angle
     this.hp = 100;
-    this.lastShot = -reload;                                          // time of the last shot
-    this.auto = 0;                                                    // if 1, auto aim to the enemy location
+    this.lastShot = -reload; // time of the last shot
+    this.auto = 0; // if 1, auto aim to the enemy location
     this.canShoot = 1;
-    this.hidden = 0;                                                  // 1 if shooter is hiding in a SG
-    this.timeHold = 0;                                                // last time start holding a grenade
-    this.holding = 0;                                                 // type of holding grenade
-    this.targetX = this.x;                                            // target of the grenade
-    this.targetY = this.y;                                            // ---  
+    this.hidden = 0; // 1 if shooter is hiding in a SG
+    this.timeHold = 0; // last time start holding a grenade
+    this.holding = 0; // type of holding grenade
+    this.targetX = this.x; // target of the grenade
+    this.targetY = this.y; // ---
   }
 
   move() {
@@ -43,7 +43,7 @@ class Shooter {
         }
       }
     }
-    // make the moving direction's magnitude equal to shooter's speed 
+    // make the moving direction's magnitude equal to shooter's speed
     this.dir.normalize();
     this.dir.mult(this.speed);
     // move shooter by moving direction
@@ -73,25 +73,16 @@ class Shooter {
     if (GameStatus == "ended") return;
     // if auto mode is on, shoot to the enemy location
     if (this.auto) {
-      this.gunDir.set(
-        player[3 - this.num].x - this.x,
-        player[3 - this.num].y - this.y
-      );
-      this.gunDir.normalize();
+      this.gunDir = atan2(player[3 - this.num].y - this.y, player[3 - this.num].x - this.x);
       return;
-    }
+    } 
     // manuallly change gun direction
     if (this.num == 1) {
-      this.gunDir.mult(10);
-      for (let i = 0; i < 4; i++) {
-        if (keyIsDown(p1gun[i])) {
-          this.gunDir.add(vectorDir[i]);
-        }
-      }
+      if(keyIsDown(71)) this.gunDir -= 1.25 * PI / FPS;
+      else if(keyIsDown(72)) this.gunDir += 1.25 * PI / FPS;
     } else {
-      this.gunDir.set(mouseX - this.x, mouseY - this.y);
+      this.gunDir = atan2(mouseY - this.y, mouseX - this.x);
     }
-    this.gunDir.normalize();
   }
 
   shoot() {
@@ -108,12 +99,13 @@ class Shooter {
       (this.num == 1 && keyIsDown(32)) ||
       (this.num == 2 && mouseIsPressed)
     ) {
-      let bl;
-      bl = new Bullet(
+      let dirX = cos(this.gunDir);
+      let dirY = sin(this.gunDir);
+      let bl = new Bullet(
         this.num,
-        this.gunDir,
-        this.x + this.gunDir.x * 10,
-        this.y + this.gunDir.y * 10
+        createVector(dirX, dirY),
+        this.x + dirX * 10,
+        this.y + dirY * 10
       );
       bl.shoot();
       bullet.push(bl);
@@ -127,9 +119,9 @@ class Shooter {
     this.canShoot = 0;
     this.speed = 1.5;
     this.targetX =
-      this.x + (((millis() - this.timeHold) * this.gunDir.x) / FPS) * 25;
+      this.x + (((millis() - this.timeHold) * cos(this.gunDir)) / FPS) * 30;
     this.targetY =
-      this.y + (((millis() - this.timeHold) * this.gunDir.y) / FPS) * 25;
+      this.y + (((millis() - this.timeHold) * sin(this.gunDir)) / FPS) * 30;
   }
 
   // throw holding grenade
@@ -218,8 +210,8 @@ class Shooter {
     line(
       this.x,
       this.y,
-      this.x + this.gunDir.x * this.radius * 0.75,
-      this.y + this.gunDir.y * this.radius * 0.75
+      this.x + cos(this.gunDir) * this.radius * 0.75,
+      this.y + sin(this.gunDir) * this.radius * 0.75
     );
     // hp bar
     stroke(255, sqrt(this.hp / 100) * 255, sq(this.hp / 100) * 255);

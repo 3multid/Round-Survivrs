@@ -10,11 +10,12 @@ class Grenade {
   throw() {
     // time it fly
     this.timeCount =
-      0.5 + dist(this.targetX, this.targetY, this.x, this.y) / 250;
+      0.5 + dist(this.targetX, this.targetY, this.x, this.y) / 400;
     // direction
     this.dir = createVector(this.targetX - this.x, this.targetY - this.y);
     this.dir.div(this.timeCount * FPS);
-    this.timeExplode = -1;
+    // other
+    this.lifeTime = inf;
     this.radius = 4;
     this.exist = 1;
     this.exploded = 0;
@@ -24,16 +25,21 @@ class Grenade {
     // explode
     if (
       dist(this.x, this.y, this.targetX, this.targetY) <= this.dir.mag() / 2 ||
-      this.exploded ||
       hitBorder(this)
     ) {
-      if (!this.exploded) this.timeExplode = millis();
-      if (this.type == 1) {
-        this.smokeExplode();
-      } else {
-        this.fragExplode();
+      if (!this.exploded){
+        this.exploded = 1;
+        if (this.type == 1) {
+          this.lifeTime = 7.5;
+        } else {
+          this.lifeTime = 2;
+        }
       }
-      this.exploded = 1;
+      if (this.type == 1) {
+          this.smokeExplode();
+        } else {
+          this.fragExplode();
+        }
       return;
     }
     // fly
@@ -43,10 +49,9 @@ class Grenade {
 
   // after exploding, continuosly increase size of smoke
   smokeExplode() {
-    let t = millis() - this.timeExplode;
-    if (t < 5000) {
-      this.radius = t / 50;
-    } else if (t > 7500) this.exist = 0;
+    if(this.lifeTime > 2.5){
+      this.radius = 153 - this.lifeTime * 20;
+    } else if (this.lifeTime <= 0) this.exist = 0;
   }
 
   // deal damage depend on distance to center and shoot some frags when explode
@@ -75,7 +80,7 @@ class Grenade {
         bullet.push(bl);
       }
     }
-    if (millis() - this.timeExplode > 2000) {
+    if (this.lifeTime <= 0) {
       this.exist = 0;
     }
   }
@@ -88,7 +93,8 @@ class Grenade {
       fill(230);
     } else {
       noStroke();
-      fill(255);
+      if(this.lifeTime > 0.5) fill(255);
+      else fill(255, 255, 255, this.lifeTime * 2 * 255);
     }
     ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
     pop();
@@ -101,11 +107,10 @@ class Grenade {
       fill(200, 200, 0);
       ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
     } else {
-      let t = (millis() - this.timeExplode) / 2000;
       noStroke();
       let circles = 30;
       for (let i = circles; i >= 1; i--) {
-        fill(255, 255 - (i * 240) / circles, 0, 255 - t * 255);
+        fill(255, 255 - (i * 240) / circles, 0, this.lifeTime / 2 * 255);
         ellipse(this.x, this.y, (i * 150) / circles, (i * 150) / circles);
       }
     }

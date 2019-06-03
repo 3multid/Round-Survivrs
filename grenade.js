@@ -1,15 +1,17 @@
 class Grenade {
   constructor(type, throwerX, throwerY, targetX, targetY) {
     this.type = type; // 1 is smoke, 2 is frag
-    this.x = throwerX;
-    this.y = throwerY;
-    this.targetX = targetX;
-    this.targetY = targetY;
+    this.x = throwerX; // location of thrower
+    this.y = throwerY; // 
+    this.targetX = targetX; // location of target
+    this.targetY = targetY; //
   }
 
   throw() {
+    // time it fly
     this.timeCount =
       0.5 + dist(this.targetX, this.targetY, this.x, this.y) / 250;
+    // direction
     this.dir = createVector(this.targetX - this.x, this.targetY - this.y);
     this.dir.div(this.timeCount * FPS);
     this.timeExplode = -1;
@@ -19,6 +21,7 @@ class Grenade {
   }
 
   fly() {
+    // explode
     if (
       dist(this.x, this.y, this.targetX, this.targetY) <= this.dir.mag() / 2 ||
       this.exploded ||
@@ -33,10 +36,12 @@ class Grenade {
       this.exploded = 1;
       return;
     }
+    // fly
     this.x += this.dir.x;
     this.y += this.dir.y;
   }
 
+  // after exploding, continuosly increase size of smoke
   smokeExplode() {
     let t = millis() - this.timeExplode;
     if (t < 5000) {
@@ -44,9 +49,11 @@ class Grenade {
     } else if (t > 7500) this.exist = 0;
   }
 
+  // deal damage depend on distance to center and shoot some frags when explode
   fragExplode() {
     if (!this.exploded) {
       this.radius = 75;
+      // deal damage
       for (let i = 1; i <= 2; i++) {
         if (hit(player[i], this)) {
           player[i].hp -=
@@ -54,6 +61,7 @@ class Grenade {
             (dist(player[i].x, player[i].y, this.x, this.y) / this.radius) * 30;
         }
       }
+      // shoot frags
       for (let i = 0; i < 6; i++) {
         let rd = random(PI / 3);
         let ang = (PI / 3) * i + rd;

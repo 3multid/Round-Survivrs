@@ -12,18 +12,22 @@ function setup() {
 
 function draw() {
   background(128);
+  // endgame status
   for (let i = 1; i <= 2; i++) {
     if (player[i].hp <= 0) {
       push();
-      fill(random(255), random(255), random(255));
-      if (player[2].hp <= 0) text("Player 1 wins!", centerX - 40, centerY - 10);
-      else text("Player 2 wins!", centerX - 40, centerY - 10);
+      textSize(40);
+      textAlign(CENTER);
+      fill(0);
+      if (player[2].hp <= 0) text("Player 1 wins!", centerX, centerY - 30);
+      else text("Player 2 wins!", centerX, centerY - 30);
+      text("Press Enter to play again.", centerX, centerY + 40);
       pop();
-      text("Press Enter to play again.", centerX - 70, centerY + 10);
       GameStatus = "ended";
       return;
     }
   }
+  // handle shooters
   for (let i = 1; i <= 2; i++) {
     player[i].move();
     player[i].directGun();
@@ -31,27 +35,27 @@ function draw() {
     player[i].frag = max(0, player[i].frag - 1 / FPS);
     player[i].smoke = max(0, player[i].smoke - 1 / FPS);
   }
+  // hold grenade
   if (keyIsDown(69) && player[1].holding == 1) {
     player[1].holdGrenade(1);
-    player[1].canShoot = 0;
   } else if (keyIsDown(82) && player[1].holding == 2) {
     player[1].holdGrenade(2);
-    player[1].canShoot = 0;
   } else if ((keyIsDown(96) || keyIsDown(48)) && player[2].holding == 1) {
     player[2].holdGrenade(1);
-    player[2].canShoot = 0;
   } else if ((keyIsDown(110) || keyIsDown(190)) && player[2].holding == 2) {
     player[2].holdGrenade(2);
-    player[2].canShoot = 0;
   }
+  // display border
   push();
   fill(180);
   ellipse(centerX, centerY, Radius * 2, Radius * 2);
   pop();
+  // display shooters
   for (let i = 1; i <= 2; i++) {
     player[i].outerDisplay();
     player[i].display();
   }
+  // when game is ready, countdown
   if (GameStatus == "ready") {
     let t = millis() - timeStart;
     push();
@@ -63,11 +67,13 @@ function draw() {
     else GameStatus = "playing";
     pop();
   }
+  // handle bullets
   for (let i = 0; i < bullet.length; i++) {
     bullet[i].fly();
     bullet[i].display();
   }
   bullet = bullet.filter(x => x.exist);
+  // handle grenades
   for (let i = 0; i < grenade.length; i++) {
     grenade[i].fly();
     if (grenade[i].type == 1) grenade[i].displaySmoke();
@@ -81,9 +87,11 @@ function keyPressed() {
     newGame();
     return;
   }
+  // switch auto mode
   if (keyCode == 81) player[1].auto = !player[1].auto;
   else if (keyCode == 8) player[2].auto = !player[2].auto;
   if (GameStatus != "playing") return;
+  // start holding a grenade
   if (key == "e" && player[1].smoke == 0) {
     player[1].timeHold = millis();
     player[1].holding = 1;
@@ -102,6 +110,7 @@ function keyPressed() {
 
 function keyReleased() {
   if (GameStatus != "playing") return;
+  // throw grenade
   if (key == "e" && player[1].holding == 1) {
     player[1].smoke = smokeCD;
     player[1].throwGrenade();

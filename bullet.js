@@ -1,19 +1,20 @@
 class Bullet {
   constructor(shooter, dir, x, y) {
-    this.shooter = shooter;
-    this.dir = dir.copy();
+    this.shooter = shooter; // index of the shooter
+    this.dir = dir.copy(); // direction of the bullet
     this.x = x; // make bullet type to reduce complexity
     this.y = y; //
   }
 
   shoot() {
+    // bullet or frag
     if (this.shooter) {
       this.radius = 3;
-      this.speed = 5;
+      this.speed = 7;
       this.dmg = 10;
     } else {
       this.radius = 2;
-      this.speed = 7;
+      this.speed = 10;
       this.dmg = 5;
     }
     this.exist = 1;

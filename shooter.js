@@ -5,30 +5,27 @@ class Shooter {
 
   // spawn the shooter and reset some attributes
   spawn(x, y) {
-    this.x = x;                                                       // spawn at a location
+    this.x = x;                                                       // initial coordinate
     this.y = y;                                                       // ---
     this.smoke = 0;                                                   // smoke grenade cooldown
     this.frag = 0;                                                    // frag grenade cooldown
     this.dir = createVector(0, 0);                                    // direction of moving
-    this.speed = 3;                                                   // speed of moving
+    this.speed = 3;
     this.radius = 15;                                                 // radius of the body
     this.gunDir = createVector(centerX - this.x, centerY - this.y);   // direction of shooting or throwing
-    this.hp = 100;                                                    // hp
+    this.hp = 100;
     this.lastShot = -reload;                                          // time of the last shot
     this.auto = 0;                                                    // if 1, auto aim to the enemy location
-    this.canShoot = 1;                                                // 1 if shooter can shoot
+    this.canShoot = 1;
     this.hidden = 0;                                                  // 1 if shooter is hiding in a SG
     this.timeHold = 0;                                                // last time start holding a grenade
     this.holding = 0;                                                 // type of holding grenade
     this.targetX = this.x;                                            // target of the grenade
-    this.targetY = this.y;                                            // ---
+    this.targetY = this.y;                                            // ---  
   }
 
-  // shooter's move
   move() {
-    // if the game is not playing, forbid moving
     if (GameStatus != "playing") return;
-    // reset moving direction
     this.dir.set(0, 0);
     // determine moving direction by pressing keys
     if (this.num == 2) {
@@ -73,8 +70,8 @@ class Shooter {
 
   // direct the gun either automatically or manually
   directGun() {
-    // if the game is ended, forbid directing gun 
     if (GameStatus == "ended") return;
+    // if auto mode is on, shoot to the enemy location
     if (this.auto) {
       this.gunDir.set(
         player[3 - this.num].x - this.x,
@@ -83,6 +80,7 @@ class Shooter {
       this.gunDir.normalize();
       return;
     }
+    // manuallly change gun direction
     if (this.num == 1) {
       this.gunDir.mult(10);
       for (let i = 0; i < 4; i++) {
@@ -97,44 +95,36 @@ class Shooter {
   }
 
   shoot() {
+    // forbid shooting
     if (
       millis() - this.lastShot < reload ||
       GameStatus != "playing" ||
       !this.canShoot
     )
       return;
+    // shoot
     if (
       this.auto ||
       (this.num == 1 && keyIsDown(32)) ||
       (this.num == 2 && mouseIsPressed)
     ) {
       let bl;
-      if (this.auto) {
-        let enemyDir = createVector(
-          player[3 - this.num].x - this.x,
-          player[3 - this.num].y - this.y
-        );
-        enemyDir.normalize();
-        bl = new Bullet(
-          this.num,
-          enemyDir,
-          this.x + enemyDir.x * 10,
-          this.y + enemyDir.y * 10
-        );
-      } else
-        bl = new Bullet(
-          this.num,
-          this.gunDir,
-          this.x + this.gunDir.x * 10,
-          this.y + this.gunDir.y * 10
-        );
+      bl = new Bullet(
+        this.num,
+        this.gunDir,
+        this.x + this.gunDir.x * 10,
+        this.y + this.gunDir.y * 10
+      );
       bl.shoot();
       bullet.push(bl);
+      // reload
       this.lastShot = millis();
     }
   }
 
+  // if shooter is holding a grenade, forbid shooting, decrease its speed and increase distance to target
   holdGrenade() {
+    this.canShoot = 0;
     this.speed = 1.5;
     this.targetX =
       this.x + (((millis() - this.timeHold) * this.gunDir.x) / FPS) * 25;
@@ -142,6 +132,7 @@ class Shooter {
       this.y + (((millis() - this.timeHold) * this.gunDir.y) / FPS) * 25;
   }
 
+  // throw holding grenade
   throwGrenade() {
     let gr = new Grenade(
       this.holding,
@@ -157,6 +148,7 @@ class Shooter {
     this.canShoot = 1;
   }
 
+  // display auto mode, smoke and frag cooldown
   outerDisplay() {
     let autoX = 31,
       autoY = 31;
@@ -165,23 +157,26 @@ class Shooter {
     let fragX = autoX,
       fragY = autoY + 50;
     if (this.num == 2) {
-      autoX = 600 - autoX;
-      autoY = 600 - autoY;
-      smokeX = 600 - smokeX;
-      smokeY = 600 - smokeY;
-      fragX = 600 - fragX;
-      fragY = 600 - fragY;
+      autoX = centerX * 2 - autoX;
+      autoY = centerY * 2 - autoY;
+      smokeX = centerX * 2 - smokeX;
+      smokeY = centerY * 2 - smokeY;
+      fragX = centerX * 2 - fragX;
+      fragY = centerY * 2 - fragY;
     }
     push();
+    // auto mode
     stroke(0);
     strokeWeight(1);
     if (!this.auto) fill(230);
     else fill(200, 200, 55);
     ellipse(autoX, autoY, 50, 50);
+    // smoke and frag
     fill(255);
     ellipse(smokeX, smokeY, 40, 40);
     ellipse(fragX, fragY, 40, 40);
     fill(200);
+    // draw arcs for cooldown
     arc(
       smokeX,
       smokeY,
@@ -198,6 +193,7 @@ class Shooter {
       -PI / 2 + (1 - this.frag / fragCD) * PI * 2,
       -PI / 2
     );
+    // text on those
     fill(0);
     noStroke();
     textSize(10);
@@ -207,14 +203,17 @@ class Shooter {
     pop();
   }
 
+  // display shooter, gun and grenade target
   display() {
     push();
     fill(255);
     ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
+    // launcher, color depend on weapon
     if (this.holding == 0) fill(0);
     else if (this.holding == 1) fill(230);
     else fill(200, 200, 0);
     ellipse(this.x, this.y, this.radius * 0.7, this.radius * 0.7);
+    // gun
     strokeWeight(2);
     line(
       this.x,
@@ -222,6 +221,7 @@ class Shooter {
       this.x + this.gunDir.x * this.radius * 0.75,
       this.y + this.gunDir.y * this.radius * 0.75
     );
+    // hp bar
     stroke(255, sqrt(this.hp / 100) * 255, sq(this.hp / 100) * 255);
     translate(-20, -25);
     fill(255);
@@ -232,6 +232,7 @@ class Shooter {
     fill(0);
     rect(this.x + this.hp * 0.4, this.y, 40 - this.hp * 0.4, 5);
     translate(20, 25);
+    // grenade target
     if (this.holding) {
       stroke(0);
       line(this.targetX - 5, this.targetY, this.targetX + 5, this.targetY);

@@ -6,7 +6,7 @@ class Shooter {
   // spawn the shooter and reset some attributes
   spawn(x, y) {
     this.x = x;
-    this.y = y; 
+    this.y = y;
     this.smoke = 0; // smoke grenade cooldown
     this.frag = 0; // frag grenade cooldown
     this.dir = createVector(0, 0); // direction of moving by vector
@@ -15,9 +15,9 @@ class Shooter {
     this.gunDir = PI / 4; // direction of shooting or throwing by angle
     this.hp = 100;
     this.lastShot = -reload; // time of the last shot
-    this.auto = 0; // if 1, auto aim to the enemy location
+    this.auto = 0; // if 1, auto aim and shoot to the enemy location
     this.canShoot = 1;
-    this.hidden = 0; // 1 if shooter is hiding in a SG
+    this.hidden = 0; // number of SG shooter is hiding in
     this.timeHold = 0; // last time start holding a grenade
     this.holding = 0; // type of holding grenade
     this.targetX = this.x; // target of the grenade
@@ -73,20 +73,22 @@ class Shooter {
     if (GameStatus == "ended") return;
     // if auto mode is on, shoot to the enemy location
     if (this.auto) {
-      this.gunDir = atan2(player[3 - this.num].y - this.y, player[3 - this.num].x - this.x);
+      this.gunDir = atan2(
+        player[3 - this.num].y - this.y,
+        player[3 - this.num].x - this.x
+      );
       return;
-    } 
+    }
     // manuallly change gun direction
     if (this.num == 1) {
-      if(keyIsDown(71)) this.gunDir -= 1.25 * PI / FPS;
-      else if(keyIsDown(72)) this.gunDir += 1.25 * PI / FPS;
+      if (keyIsDown(71)) this.gunDir -= (1.25 * PI) / FPS;
+      else if (keyIsDown(72)) this.gunDir += (1.25 * PI) / FPS;
     } else {
       this.gunDir = atan2(mouseY - this.y, mouseX - this.x);
     }
   }
 
   shoot() {
-    // forbid shooting
     if (
       millis() - this.lastShot < reload ||
       GameStatus != "playing" ||
@@ -188,10 +190,12 @@ class Shooter {
     // text on those
     fill(0);
     noStroke();
+    textSize(15);
+    textAlign(CENTER, CENTER);
+    text("Auto", autoX, autoY);
     textSize(10);
-    text("Auto", autoX - 10, autoY + 3);
-    text("Frag", fragX - 10, fragY + 3);
-    text("Smoke", smokeX - 15, smokeY + 3);
+    text("Frag", fragX, fragY);
+    text("Smoke", smokeX, smokeY);
     pop();
   }
 
@@ -200,7 +204,7 @@ class Shooter {
     push();
     fill(255);
     ellipse(this.x, this.y, this.radius * 2, this.radius * 2);
-    // launcher, color depend on weapon
+    // launcher, its color depend on weapon
     if (this.holding == 0) fill(0);
     else if (this.holding == 1) fill(230);
     else fill(200, 200, 0);
@@ -214,16 +218,18 @@ class Shooter {
       this.y + sin(this.gunDir) * this.radius * 0.75
     );
     // hp bar
-    stroke(255, sqrt(this.hp / 100) * 255, sq(this.hp / 100) * 255);
-    translate(-20, -25);
-    fill(255);
-    rect(this.x, this.y, 40, 5);
-    noStroke();
-    fill("blue");
-    rect(this.x, this.y, this.hp * 0.4, 5);
-    fill(0);
-    rect(this.x + this.hp * 0.4, this.y, 40 - this.hp * 0.4, 5);
-    translate(20, 25);
+    if (!this.hidden) {
+      stroke(255, sqrt(this.hp / 100) * 255, sq(this.hp / 100) * 255);
+      translate(-20, -25);
+      fill(255);
+      rect(this.x, this.y, 40, 5);
+      noStroke();
+      fill("blue");
+      rect(this.x, this.y, this.hp * 0.4, 5);
+      fill(0);
+      rect(this.x + this.hp * 0.4, this.y, 40 - this.hp * 0.4, 5);
+      translate(20, 25);
+    }
     // grenade target
     if (this.holding) {
       stroke(0);

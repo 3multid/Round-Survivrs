@@ -8,7 +8,7 @@ class Grenade {
   }
 
   throw() {
-    // time it fly
+    // time before exploding
     this.timeCount =
       0.5 + dist(this.targetX, this.targetY, this.x, this.y) / 400;
     // direction
@@ -37,7 +37,7 @@ class Grenade {
       if (this.type == 1) {
         this.smokeExplode();
       } else {
-        this.fragExplode(); 
+        this.fragExplode();
       }
       this.exploded = 1;
       return;
@@ -47,7 +47,7 @@ class Grenade {
     this.y += this.dir.y;
   }
 
-  // after exploding, continuosly increase size of smoke
+  // after exploding, gradually increase size of smoke
   smokeExplode() {
     if (this.lifeTime > 2.5) {
       this.radius = 153 - this.lifeTime * 20;

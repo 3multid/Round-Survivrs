@@ -14,17 +14,19 @@ function draw() {
     if (player[i].hp <= 0) {
       push();
       textSize(40);
-      textAlign(CENTER);
+      textAlign(CENTER, CENTER);
       fill(0);
-      if (player[2].hp <= 0) text("Player 1 wins!", centerX, centerY - 30);
-      else text("Player 2 wins!", centerX, centerY - 30);
-      text("Press Enter to play again.", centerX, centerY + 40);
+      if (player[2].hp <= 0) text("Player 1 wins!", centerX, centerY - 25);
+      else text("Player 2 wins!", centerX, centerY);
+      text("Press Enter to play again.", centerX, centerY + 25);
       pop();
       GameStatus = "ended";
       return;
     }
   }
   // handle shooters
+  if (player[1].hidden) player[2].auto = 0;
+  if (player[2].hidden) player[1].auto = 0;
   for (let i = 1; i <= 2; i++) {
     player[i].move();
     player[i].directGun();
@@ -57,10 +59,11 @@ function draw() {
     let t = millis() - timeStart;
     push();
     textSize(30);
+    textAlign(CENTER, CENTER);
     if (t < 3000) {
       let tx = 4 + floor(-t / 1000);
-      text(tx.toString(), centerX - 10, centerY + 10);
-    } else if (t < 4000) text("Shoot!", centerX - 45, centerY + 10);
+      text(tx.toString(), centerX, centerY);
+    } else if (t < 4000) text("Shoot!", centerX, centerY);
     else GameStatus = "playing";
     pop();
   }
@@ -72,13 +75,23 @@ function draw() {
   }
   bullet = bullet.filter(x => x.exist);
   // handle grenades
+  let explodedSmoke = grenade.filter(x => x.exploded && x.type == 1);
   for (let i = 0; i < grenade.length; i++) {
     grenade[i].fly();
     grenade[i].lifeTime -= 1 / FPS;
     if (grenade[i].type == 1) grenade[i].displaySmoke();
     else grenade[i].displayFrag();
   }
+  // players hiding
+  player[1].hidden = player[2].hidden = 0;
+  for (let i = 0; i < explodedSmoke.length; i++) {
+    explodedSmoke[i].displaySmoke();
+    for (let j = 1; j <= 2; j++) {
+      if (hit(explodedSmoke[i], player[j])) player[j].hidden = 1;
+    }
+  }
   grenade = grenade.filter(x => x.exist);
+  // other
 }
 
 function keyPressed() {
@@ -87,8 +100,8 @@ function keyPressed() {
     return;
   }
   // switch auto mode
-  if (keyCode == 81) player[1].auto = !player[1].auto;
-  else if (keyCode == 8) player[2].auto = !player[2].auto;
+  if (keyCode == 81 && !player[2].hidden) player[1].auto = !player[1].auto;
+  else if (keyCode == 8 && !player[1].hidden) player[2].auto = !player[2].auto;
   if (GameStatus != "playing") return;
   // start holding a grenade
   if (key == "e" && player[1].smoke == 0) {
@@ -152,4 +165,3 @@ function fixToBorder(s) {
   s.x -= out.x;
   s.y -= out.y;
 }
-

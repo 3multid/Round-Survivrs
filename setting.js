@@ -27,7 +27,7 @@ let rainbowColor = [
 
 /*
 a w d s : p1 move
-g y j h : p1 aim
+g h : p1 rotate gun
 space: p1 shoot
 arrows : p2 move
 mouse : p2 aim
@@ -35,7 +35,7 @@ left mouse : p2 shoot
 q : p1 auto shoot
 backspace: p2 auto shoot
 e : p1 hold smoke, release to throw
-r : p1 throw frag, ___
-0 : p2 throw smoke, ___
-. : p2 throw frag, ___
+r : p1 hold frag, ___
+0 : p2 hold smoke, ___
+. : p2 hold frag, ___
 */
